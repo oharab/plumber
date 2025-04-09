@@ -1,0 +1,106 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+.github
+
+# R specific
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+.Rapp.history
+.Rprofile
+.Renviron
+.RDataTmp
+.Rcache
+.Rtemp
+
+# R package files
+*.tar.gz
+*.tgz
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# Documentation
+*.md
+!README.md
+docs/
+*.pdf
+*.doc
+*.docx
+
+# Development and IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
+
+# Environment and config files
+.env
+.env.local
+.env.*.local
+local.settings.json
+*.env
+
+# Test files
+tests/
+test/
+*.test.R
+*_test.R
+*_tests.R
+
+# Build and output directories
+dist/
+build/
+out/
+bin/
+obj/
+
+# Log files
+*.log
+logs/
+log/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Docker
+.docker/
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Azure Functions
+.python_packages/
+__pycache__/
+*.pyc
+.funcignore
+.venv/
+env/
+venv/
+ENV/
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Keep only necessary files
+!app/
+!host.json
+!local.settings.json.example 
