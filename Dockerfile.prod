@@ -1,0 +1,73 @@
+FROM rocker/r-ver:4.2.0
+
+# Install required system dependencies
+RUN apt-get update && apt-get install -y \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libxml2-dev \
+    curl \
+    unzip \
+    wget \
+    gnupg \
+    lsb-release \
+    libsodium-dev \
+    libz-dev
+
+# Install Azure Functions Core Tools using Microsoft's repo
+RUN wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb \
+    && dpkg -i packages-microsoft-prod.deb \
+    && apt-get update \
+    && apt-get install -y azure-functions-core-tools-4
+
+# Install R packages - keeping the same sequential installation for consistency
+RUN R -e "install.packages('sys', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('Rcpp', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('rlang', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('later', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('fastmap', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('cli', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('glue', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('askpass', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('R6', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('stringi', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('curl', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('jsonlite', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('webutils', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('magrittr', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('promises', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('httpuv', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('crayon', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('sodium', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('swagger', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('mime', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('lifecycle', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('openssl', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('httr', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('logger', repos='https://cran.rstudio.com/')"
+RUN R -e "install.packages('plumber', repos='https://cran.rstudio.com/')"
+
+# Copy your R code
+COPY ./app /app
+
+# Set up function app configuration
+COPY host.json /home/site/wwwroot/
+# COPY local.settings.json /home/site/wwwroot/
+
+# Create a simple startup script
+RUN echo "#!/bin/bash\n\
+# Start the R API server in the background\n\
+R -e \"source('/app/plumber.R')\" &\n\
+R_PID=\$!\n\
+\n\
+# Start the Azure Functions host\n\
+cd /home/site/wwwroot && func host start\n\
+\n\
+# If Azure Functions host exits, also terminate R\n\
+kill \$R_PID\n\
+" > /start.sh && chmod +x /start.sh
+
+WORKDIR /home/site/wwwroot
+EXPOSE 80
+
+# Use the production startup script
+CMD ["/start.sh"]
